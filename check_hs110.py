@@ -24,7 +24,7 @@ def validIP(ip):
 
 def encrypt(string):
 	key = 171
-	result = "\0\0\0\0"
+        result = pack('>I', len(string))
 	for i in string: 
 		a = key ^ ord(i)
 		key = a
@@ -57,9 +57,12 @@ try:
 	jsonstr = decrypt(result[4:])
 	data = json.loads(jsonstr)
 	data = data["emeter"]["get_realtime"]
-	perf = "| power=" + str(data["power"]) + ", current=" + str(data["current"]) + ", voltage=" + str(data["voltage"])
-	
-	print "OK - " + str(data["power"]) + " watt's are in use." + perf
+        if "power_mw" in data:
+                perf = "| power=" + str(data["power_mw"]) + " current=" + str(data["current_ma"]) + " voltage=" + str(data["voltage_mv"])
+                print "OK - " + str(data["power_mw"]) + " watt's are in use." + perf
+        else:
+                perf = "| power=" + str(data["power"]) + " current=" + str(data["current"]) + " voltage=" + str(data["voltage"])
+                print "OK - " + str(data["power"]) + " watt's are in use." + perf
 	sys.exit(0)
 except socket.error:
 	print "CRITICAL - Cound not connect to host " + args.host + ":" + str(PORT)
